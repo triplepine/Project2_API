@@ -5,7 +5,7 @@ library(tidyverse)
 library(jsonlite)
 library(DT)
 library(ggplot2)
-
+library(ggcharts)
 
 # Function to query the animal API endpoint
 get_animal_adr <- function(search = "original_receive_date", date = "20230601", limit = 1000) {
