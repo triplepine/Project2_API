@@ -164,3 +164,86 @@ animal_reaction_speicies <- ggplot(output, aes(x=animal.age.min, fill=animal.spe
 # Display the plot
 print(animal_hist)
 print(animal_reaction_speicies) 
+
+
+
+# The Exploration tab
+cleaned_animal_data <- reactive({
+  req(animal_data())
+  data <- animal_data()
+  
+  # Convert necessary columns to numeric
+  data$animal.weight.min <- as.numeric(data$animal.weight.min)
+  data$animal.age.min <- as.numeric(data$animal.age.min)
+  data$number_of_animals_treated <- as.numeric(data$number_of_animals_treated)
+  data$number_of_animals_affected <- as.numeric(data$number_of_animals_affected)
+  
+  # Create function to make the age unit consistent as unit year
+  convert_to_years <- function(age, unit) {
+    if (is.na(age) || is.na(unit)) {
+      return(NA)
+    }
+    if (unit == "Year") {
+      return(as.numeric(age))
+    } else if (unit == "Month") {
+      return(as.numeric(age) / 12)
+    } else {
+      return(as.numeric(NA))
+    }
+  }
+  
+  data$age_in_years <- mapply(convert_to_years, data$animal.age.min, data$animal.age.unit)
+  
+  # Return cleaned data
+  data
+})
+
+# Reactive expression to summarize data based on selected variable
+summary_data <- reactive({
+  req(cleaned_animal_data())
+  data <- cleaned_animal_data()
+  if (input$var == "Age") {
+    data %>%
+      group_by(animal.species) %>%
+      summarise(mean_age = mean(age_in_years, na.rm = TRUE),
+                median_age = median(age_in_years, na.rm = TRUE),
+                min_age = min(age_in_years, na.rm = TRUE),
+                max_age = max(age_in_years, na.rm = TRUE))
+  } else {
+    data %>%
+      group_by(animal.species) %>%
+      summarise(mean_weight = mean(animal.weight.min, na.rm = TRUE),
+                median_weight = median(animal.weight.min, na.rm = TRUE),
+                min_weight = min(animal.weight.min, na.rm = TRUE),
+                max_weight = max(animal.weight.min, na.rm = TRUE))
+  }
+})
+
+# Render the summary table
+output$summaryTable <- renderTable({
+  summary_data()
+})
+
+# Reactive expression to create plot based on selected type
+plot_data <- reactive({
+  req(cleaned_animal_data())
+  data <- cleaned_animal_data()
+  if (input$plot == "species") {
+    ggplot(data, aes(x = animal.species)) +
+      geom_bar() +
+      labs(title = "Count of Species", x = "Species", y = "Count")
+  } else if (input$plot == "speciesWeight") {
+    ggplot(data, aes(x = animal.species, y = animal.weight.min)) +
+      geom_bar(stat = "identity") +
+      labs(title = "Species and Weight", x = "Species", y = "Weight")
+  } else if (input$plot == "speciesAge") {
+    ggplot(data, aes(x = animal.species, y = age_in_years)) +
+      geom_bar(stat = "identity") +
+      labs(title = "Species and Age", x = "Species", y = "Age")
+  }
+})
+
+# Render the plot
+output$animalPlot <- renderPlot({
+  plot_data()
+})

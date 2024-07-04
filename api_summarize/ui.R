@@ -1,41 +1,49 @@
+# 
 #
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
-#
+# St558 - Project 2
+# Create a shiny app to query an API and summarize the data
+# Jie Chen
+# 07-02-2024
 
 library(shiny)
 library(shiny)
 library(DT)
 
-# Define UI for application that draws a histogram
+# Define UI for application which contains 3 tabs
 
-
-navbarPage("FDA Animal & Food API",
+navbarPage("FDA Animal & Food Aderve Effect",
            tabPanel("About",
                     fluidPage(
                       titlePanel("About This App"),
                       sidebarLayout(
                         sidebarPanel(
-                          h3("Purpose of the App"),
-                          p("This app provides access to the FDA Animal & Veterinary API and Food API data, allowing users to search for adverse events and see the numerical and graphical summaries."),
+                          h3("Data Source"),
+                          p("The data is sourced from the FDA's Animal & Veterinary API and Food API Endpoints. For more information, visit the ",
+                            br(),
+                            a("OpenFDA ", href = "https://api.fda.gov/drug/event.json?"),
+                            br(),
+                            br(),
+                            img(src = "openFDA.png", height = "60px", width = "200px")
+                          ),
                         ),
                         mainPanel(
-                          h3("Welcome to the Animal Drug & Food Adverse Events Reports App"),
-                          h3("Data Source"),
-                          p("The data is sourced from the FDA's Animal & Veterinary API. For more information, visit the ",
-                            a("FDA Animal & Veterinary API", href = "https://api.fda.gov/drug/event.json?"),
-                            br(),
-                            img(src = "openFDA.png", height = "80px", width = "200px")
-                          ),
-                          p("Use the tabs above to navigate through the app."),
-                          
+                          h3("Purpose of the App"),
+                          p("This app provides access to the FDA Animal & Veterinary API and Food API data, allowing users to search for Animal Adverse Events and Food Enforcement along with the numerical and graphical summaries."),
+                          br(),
                           h3("Tab Descriptions"),
-                          p("1. ", strong("About:"), " Provides information about the app, the data source, and the purpose of each tab."),
-                          p("2. ", strong("Download:"), " Allows users to specify changes to API querying and return data.")
+                          h4("1. ", strong("About:")) ,
+                          p(" Provides information about the app, the data source, and the purpose of each tab."),
+                          h4("2. ", strong("Download:")), 
+                          p("- You can specify changes to the API querying and obtain the corresponding data."),
+                          p("- Display the returned data"),
+                          p("- Subset the data set, you can select rows and columns"),
+                          p("- Allow you to save the data as .csv file"),
+                          h4("3. ", strong("Exploration:")),
+                          p("-This tab allow you to choose variables that are summarized via numerical and graphical summaries"),
+                          p("- You can change the type of plot shown and the type of summary reported"),
+                          br(),
+                          br(),
+                          br()
                         )
                       )
                     )
@@ -82,9 +90,21 @@ navbarPage("FDA Animal & Food API",
                     fluidRow(
                       column(4,
                              wellPanel(
-                               h3("View Animal Adverse Effect Data"),
-                               p("Content for side panel 1")
+                               h3("Animal Adverse Effect"),
+                               br(),
+                               h4("Bar plots"),
+                               radioButtons("plot", "Select the Plot Type", 
+                                            choices = list("Just species" = "species", 
+                                                           "Species and weight" = "speciesWeight", 
+                                                           "Species and age" = "speciesAge"), 
+                                            selected = "species"),
+                               br(),
+                               h4("You can find the", strong("sample mean"), " for age and weight variables below:"),
+                               selectInput("var", label = "Variables to Summarize",
+                                           choices = c("Age", "Weight"),
+                                           selected = "Age")
                              ),
+                             
                              wellPanel(
                                h3("View Food Adverse Effect Data"),
                                p("Content for side panel 2")
@@ -93,7 +113,8 @@ navbarPage("FDA Animal & Food API",
                       column(8,
                              wellPanel(
                                h3("Animal"),
-                               p("Content for main panel 1")
+                               plotOutput("animalPlot"),
+                               tableOutput("summaryTable")
                              ),
                              wellPanel(
                                h3("Food"),

@@ -1,17 +1,14 @@
 #
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
+# Project 2 -st558
 #
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
-#
+
+# server
 
 library(shiny)
+library(DT)
 
 # Define the server logic
-function(input, output,session) {
-  
+function(input, output, session) {
   # Reactive values to store API data
   animal_data <- reactiveVal(NULL)
   food_data <- reactiveVal(NULL)
@@ -22,7 +19,7 @@ function(input, output,session) {
   observeEvent(input$submit_animal, {
     req(input$search_animal, input$date_animal, input$limit_animal)
     data <- get_animal_adr(input$search_animal, input$date_animal, input$limit_animal)
-    data <- flatten_list_column(data)
+    data <- flatten_list_columns(data)
     animal_data(data)
     selected_columns_animal(names(data)) # Initialize with all columns selected
   })
@@ -30,7 +27,7 @@ function(input, output,session) {
   observeEvent(input$submit_food, {
     req(input$date_range_food, input$limit_food)
     data <- get_food_data(input$date_range_food, input$limit_food)
-    data <- flatten_list_column(data)
+    #data <- flatten_list_column(data)
     food_data(data)
     selected_columns_food(names(data)) # Initialize with all columns selected
   })
@@ -42,7 +39,7 @@ function(input, output,session) {
     if (!is.null(columns)) {
       data <- data[, columns, drop = FALSE]
     }
-    datatable(data, options = list(pageLength = input$rows_to_display_animal))
+    datatable(data, options = list(pageLength = input$rows_to_display_animal, searching=FALSE))
   })
   
   output$results_food <- renderDT({
@@ -52,7 +49,7 @@ function(input, output,session) {
     if (!is.null(columns)) {
       data <- data[, columns, drop = FALSE]
     }
-    datatable(data, options = list(pageLength = input$rows_to_display_food))
+    datatable(data, options = list(pageLength = input$rows_to_display_food,searching=FALSE))
   })
   
   output$column_selector_animal <- renderUI({

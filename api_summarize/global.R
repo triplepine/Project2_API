@@ -3,6 +3,8 @@ library(shiny)
 library(httr)
 library(tidyverse)
 library(jsonlite)
+library(DT)
+library(ggplot2)
 
 
 # Function to query the animal API endpoint
@@ -27,27 +29,17 @@ get_food_data <- function(date_range = "20240101+TO+20240531", limit = 1000) {
   return(output)
 }
 
-# Function to convert lists in columns to strings and ensure consistent column lengths
-flatten_list_column <- function(df) {
-  max_length <- max(sapply(df, length))
-  df <- as.data.frame(lapply(df, function(col) {
-    if (is.list(col)) {
-      col <- sapply(col, function(x) {
-        if (is.list(x)) {
-          return(paste(unlist(x), collapse = ", "))
-        } else {
-          return(as.character(x))
-        }
-      })
+# Function to flatten list columns
+flatten_list_columns <- function(data) {
+  for (col in names(data)) {
+    if (is.list(data[[col]])) {
+      # Flatten list columns by converting them to a character string
+      data[[col]] <- sapply(data[[col]], function(x) paste(unlist(x), collapse = ", "))
     }
-    # Ensure the column has the correct length
-    if (length(col) < max_length) {
-      col <- c(col, rep(NA, max_length - length(col)))
-    }
-    return(col)
-  }))
-  return(df)
+  }
+  return(data)
 }
+
 
 
 
