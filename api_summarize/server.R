@@ -109,4 +109,94 @@ function(input, output, session) {
       write.csv(data, file, row.names = FALSE)
     }
   )
+
+  # The Exploration tab
+  
+  # Reactive expression to clean and transform data for exploration
+  cleaned_animal_data <- reactive({
+    req(animal_data())
+    data <- animal_data()
+    data$animal.weight.min <- as.numeric(data$animal.weight.min)
+    data$animal.age.min <- as.numeric(data$animal.age.min)
+    data$number_of_animals_treated <- as.numeric(data$number_of_animals_treated)
+    data$number_of_animals_affected <- as.numeric(data$number_of_animals_affected)
+    
+    convert_to_years <- function(age, unit) {
+      if (is.na(age) || is.na(unit)) {
+        return(NA)
+      }
+      if (unit == "Year") {
+        return(as.numeric(age))
+      } else if (unit == "Month") {
+        return(as.numeric(age) / 12)
+      } else {
+        return(as.numeric(NA))
+      }
+    }
+    
+    data$age_in_years <- mapply(convert_to_years, data$animal.age.min, data$animal.age.unit)
+    
+    data
+  })
+  
+  # Reactive expression to summarize data based on selected variable
+  summary_data <- reactive({
+    req(cleaned_animal_data())
+    data <- cleaned_animal_data()
+    if (input$var == "Age") {
+      data %>% 
+        filter(animal.species %in% c("Cat","Dog","Cattle","Goat","Horse")) %>%
+        group_by(animal.species) %>%
+        summarise(mean_age = mean(age_in_years, na.rm = TRUE),
+                  median_age = median(age_in_years, na.rm = TRUE),
+                  min_age = ifelse(all(is.na(age_in_years)), NA, min(age_in_years, na.rm = TRUE)),
+                  max_age = ifelse(all(is.na(age_in_years)), NA, max(age_in_years, na.rm = TRUE)))
+    } else {
+      data %>%
+        filter(animal.species %in% c("Cat","Dog","Cattle","Goat","Horse")) %>%
+        group_by(animal.species) %>%
+        summarise(mean_weight = mean(animal.weight.min, na.rm = TRUE),
+                  median_weight = median(animal.weight.min, na.rm = TRUE),
+                  min_weight = ifelse(all(is.na(animal.weight.min)), NA, min(animal.weight.min, na.rm = TRUE)),
+                  max_weight = ifelse(all(is.na(animal.weight.min)), NA, max(animal.weight.min, na.rm = TRUE)))
+    }
+  })
+  
+  # Render the summary table
+  output$summaryTable <- renderTable({
+    summary_data()
+  })
+  
+  # Reactive expression to create plot based on selected type
+  plot_data <- reactive({
+    req(cleaned_animal_data())
+    data <- cleaned_animal_data()
+    
+    # Define the levels for the animal species
+    species_levels <- c("Cat", "Dog", "Cattle", "Goat", "Horse")
+    
+    data <- data %>%
+      filter(animal.species %in% species_levels) %>%
+      drop_na(animal.species, animal.weight.min, age_in_years) %>%
+      mutate(animal.species = factor(animal.species, levels = species_levels))
+    
+    if (input$plot == "species") {
+      ggplot(data, aes(x = animal.species, fill= animal.species)) +
+        geom_bar() +
+        labs(title = "Count of Species", x = "Species", y = "Count")
+    } else if (input$plot == "speciesWeight") {
+      ggplot(data, aes(x = animal.species, y = animal.weight.min, fill= animal.species)) +
+        geom_bar(stat = "identity") +
+        labs(title = "Species and Weight", x = "Species", y = "Weight")
+    } else if (input$plot == "speciesAge") {
+      ggplot(data, aes(x = animal.species, y = age_in_years, fill= animal.species)) +
+        geom_bar(stat = "identity") +
+        labs(title = "Species and Age", x = "Species", y = "Age")
+    }
+  })
+  
+  # Render the plot
+  output$animalPlot <- renderPlot({
+    plot_data()
+  })
 }

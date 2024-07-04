@@ -3,7 +3,7 @@
 # St558 - Project 2
 # Create a shiny app to query an API and summarize the data
 # Jie Chen
-# 07-02-2024
+# 07-04-2024
 
 library(shiny)
 library(shiny)
@@ -99,7 +99,8 @@ navbarPage("FDA Animal & Food Aderve Effect",
                                                            "Species and age" = "speciesAge"), 
                                             selected = "species"),
                                br(),
-                               h4("You can find the", strong("sample mean"), " for age and weight variables below:"),
+                               h5(strong("Basic Summaries"),
+                               p("mean/median/min/max by animal.species")), 
                                selectInput("var", label = "Variables to Summarize",
                                            choices = c("Age", "Weight"),
                                            selected = "Age")
