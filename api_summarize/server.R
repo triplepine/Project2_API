@@ -112,6 +112,7 @@ function(input, output, session) {
 
   # The Exploration tab
   
+  # animal_data with plots by species (based on age/weight)
   # Reactive expression to clean and transform data for exploration
   cleaned_animal_data <- reactive({
     req(animal_data())
@@ -121,6 +122,7 @@ function(input, output, session) {
     data$number_of_animals_treated <- as.numeric(data$number_of_animals_treated)
     data$number_of_animals_affected <- as.numeric(data$number_of_animals_affected)
     
+    # deal with the age unit variable to the consistent unit year
     convert_to_years <- function(age, unit) {
       if (is.na(age) || is.na(unit)) {
         return(NA)
@@ -194,6 +196,43 @@ function(input, output, session) {
         labs(title = "Species and Age", x = "Species", y = "Age")
     }
   })
+  
+  # Food data plots
+  # Reactive expression for food data
+  food_data <- reactive({
+    req(get_food_data())
+    get_food_data()
+  })
+  
+  # Cleaned food data
+  cleaned_food_data <- reactive({
+    req(food_data())
+    data <- food_data()
+    data$classification <- factor(data$classification)
+    data$voluntary_mandated <- factor(data$voluntary_mandated)
+    data$status <- factor(data$status)
+    return(data)
+  })
+  
+  # Food data contingency table
+  output$contingency_table <- renderTable({
+    data <- cleaned_food_data()
+    table_choice <- input$table_choice
+    
+    if (table_choice == "voluntary_mandated") {
+      contingency_table <- table(data$classification, data$voluntary_mandated)
+      contingency_table <- as.data.frame.matrix(contingency_table)
+      contingency_table <- cbind(Classification = rownames(contingency_table), contingency_table)
+    } else if (table_choice == "status") {
+      contingency_table <- table(data$classification, data$status)
+      contingency_table <- as.data.frame.matrix(contingency_table)
+      contingency_table <- cbind(Classification = rownames(contingency_table), contingency_table)
+    }
+    
+    contingency_table
+  })
+
+  
   
   # Render the plot
   output$animalPlot <- renderPlot({

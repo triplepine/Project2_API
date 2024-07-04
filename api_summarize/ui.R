@@ -20,12 +20,15 @@ navbarPage("FDA Animal & Food Aderve Effect",
                           h3("Data Source"),
                           p("The data is sourced from the FDA's Animal & Veterinary API and Food API Endpoints. For more information, visit the ",
                             br(),
+                            br(),
                             a("OpenFDA ", href = "https://api.fda.gov/drug/event.json?"),
                             br(),
                             br(),
-                            img(src = "openFDA.png", height = "60px", width = "200px")
+                            img(src = "openFDA.png", height = "60px", width = "200px")),
+                          br(),
+                          p("Please know that there is a limit of 1000 observations you can query at once")
                           ),
-                        ),
+                        
                         mainPanel(
                           h3("Purpose of the App"),
                           p("This app provides access to the FDA Animal & Veterinary API and Food API data, allowing users to search for Animal Adverse Events and Food Enforcement along with the numerical and graphical summaries."),
@@ -47,7 +50,8 @@ navbarPage("FDA Animal & Food Aderve Effect",
                         )
                       )
                     )
-           ),
+                  ),
+          
            
            tabPanel("Download",
                     fluidPage(
@@ -108,7 +112,10 @@ navbarPage("FDA Animal & Food Aderve Effect",
                              
                              wellPanel(
                                h3("View Food Adverse Effect Data"),
-                               p("Content for side panel 2")
+                               p("Contingency Table"),
+                               radioButtons("table_choice", "Select Contingency Table:",
+                                            choices = list("Seriousness by Voluntary/Mandated" = "voluntary_mandated",
+                                                           "Seriousness by Status" = "status"))
                              )
                       ),
                       column(8,
@@ -119,13 +126,15 @@ navbarPage("FDA Animal & Food Aderve Effect",
                              ),
                              wellPanel(
                                h3("Food"),
-                               p("Content for main panel 2")
+                               tableOutput("contingency_table"),
+                               p("Classification (I, II, or III) is assigned by FDA to a indicate the relative degree of health hazard."),
+                               p("I= most serious / dangerous, II= potentially dangerous and III = least dangerous.")
                              )
                       )
                     )
            )
-)
 
+)
                              
         
                             
