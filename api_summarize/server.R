@@ -6,6 +6,7 @@
 
 library(shiny)
 library(DT)
+library(ggcharts)
 
 # Define the server logic
 function(input, output, session) {
@@ -18,18 +19,22 @@ function(input, output, session) {
   
   observeEvent(input$submit_animal, {
     req(input$search_animal, input$date_animal, input$limit_animal)
+    
     data <- get_animal_adr(input$search_animal, input$date_animal, input$limit_animal)
     data <- flatten_list_columns(data)
     animal_data(data)
     selected_columns_animal(names(data)) # Initialize with all columns selected
+    
   })
   
   observeEvent(input$submit_food, {
     req(input$date_range_food, input$limit_food)
+    
     data <- get_food_data(input$date_range_food, input$limit_food)
     #data <- flatten_list_column(data)
     food_data(data)
     selected_columns_food(names(data)) # Initialize with all columns selected
+    
   })
   
   output$results_animal <- renderDT({
@@ -197,21 +202,33 @@ function(input, output, session) {
     }
   })
   
-  # Food data plots
+  # Render the plot
+  output$animalPlot <- renderPlot({
+    plot_data()
+  })
+  
   # Reactive expression for food data
-  food_data <- reactive({
-    req(get_food_data())
+  queried_food_data <- reactive({
     get_food_data()
   })
   
   # Cleaned food data
   cleaned_food_data <- reactive({
-    req(food_data())
-    data <- food_data()
+    data <- queried_food_data()
     data$classification <- factor(data$classification)
     data$voluntary_mandated <- factor(data$voluntary_mandated)
     data$status <- factor(data$status)
     return(data)
+  })
+  
+  # Dynamic title for the contingency table
+  output$table_title <- renderText({
+    table_choice <- input$table_choice
+    if (table_choice == "voluntary_mandated") {
+      return("Contingency Table: Classification by Voluntary/Mandated")
+    } else if (table_choice == "status") {
+      return("Contingency Table: Classification by Status")
+    }
   })
   
   # Food data contingency table
@@ -231,11 +248,34 @@ function(input, output, session) {
     
     contingency_table
   })
-
   
-  
-  # Render the plot
-  output$animalPlot <- renderPlot({
-    plot_data()
+  # Fancy ggcharts visualization
+  output$foodPlot <- renderPlot({
+    data <- cleaned_food_data()
+    top_n <- input$top_n
+    
+    # Summarize data by state and classification
+    state_summary <- data %>%
+      group_by(state, classification) %>%
+      summarize(count = n(), .groups = "drop") %>%
+      arrange(desc(count)) %>%
+      group_by(state) %>%
+      top_n(10, count) %>%
+      ungroup()
+    
+    # Filter for top n states by total number of reports
+    top_states <- state_summary %>%
+      group_by(state) %>%
+      summarize(total_count = sum(count), .groups = "drop") %>%
+      arrange(desc(total_count)) %>%
+      top_n(top_n, total_count) %>%
+      pull(state)
+    
+    state_summary <- state_summary %>%
+      filter(state %in% top_states)
+    
+    # Create the bar chart using ggcharts
+    ggcharts::bar_chart(state_summary, x = state, y = count, facet = classification) +
+      labs(title = paste("Top", top_n, "States by Number of Reports"), x = "State", y = "Number of Reports")
   })
 }

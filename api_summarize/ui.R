@@ -9,22 +9,24 @@ library(shiny)
 library(shiny)
 library(DT)
 
+
 # Define UI for application which contains 3 tabs
 
 navbarPage("FDA Animal & Food Aderve Effect",
            tabPanel("About",
                     fluidPage(
+                      
                       titlePanel("About This App"),
                       sidebarLayout(
                         sidebarPanel(
                           h3("Data Source"),
-                          p("The data is sourced from the FDA's Animal & Veterinary API and Food API Endpoints. For more information, visit the ",
+                          p("The data is sourced from the FDA's Animal & Veterinary Adeverse Effect API and Food Enforcement API Endpoints. For more information, visit the ",
                             br(),
                             br(),
                             a("OpenFDA ", href = "https://api.fda.gov/drug/event.json?"),
                             br(),
                             br(),
-                            img(src = "openFDA.png", height = "60px", width = "200px")),
+                            img(src = "openFDA.png", height = "60px", width = "160px")),
                           br(),
                           p("Please know that there is a limit of 1000 observations you can query at once")
                           ),
@@ -86,6 +88,7 @@ navbarPage("FDA Animal & Food Aderve Effect",
                             )
                           )
                         )
+                        
                       )
                     )
            ),
@@ -111,24 +114,35 @@ navbarPage("FDA Animal & Food Aderve Effect",
                              ),
                              
                              wellPanel(
-                               h3("View Food Adverse Effect Data"),
-                               p("Contingency Table"),
+                               h3("Food Reinforcement"),
+                               
+                               h4("Contingency Table"),
                                radioButtons("table_choice", "Select Contingency Table:",
                                             choices = list("Seriousness by Voluntary/Mandated" = "voluntary_mandated",
-                                                           "Seriousness by Status" = "status"))
+                                                           "Seriousness by Status" = "status")),
+                               br(),
+                               h4("Top states by Classification"),
+                               sliderInput("top_n", "Select Number of Top States:", min = 1, max = 50, value = 10)
+                               
                              )
+                             
                       ),
                       column(8,
                              wellPanel(
-                               h3("Animal"),
+                               h3("Animal Exploration"),
                                plotOutput("animalPlot"),
                                tableOutput("summaryTable")
                              ),
                              wellPanel(
-                               h3("Food"),
+                               h3("Food Exploration"),
+                               h4(textOutput("table_title")),  # dynamic title
                                tableOutput("contingency_table"),
                                p("Classification (I, II, or III) is assigned by FDA to a indicate the relative degree of health hazard."),
-                               p("I= most serious / dangerous, II= potentially dangerous and III = least dangerous.")
+                               p("I= most serious / dangerous, II= potentially dangerous and III = least dangerous."),
+                               br(),
+                               br(),
+                               h4(textOutput("chart_title")), # dynamic title
+                               plotOutput("foodPlot")  # ggplot visualization
                              )
                       )
                     )
