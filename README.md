@@ -11,9 +11,13 @@ There is a limit of 1000 observations you can query at once
 
 2. Download.
 
-You can specify changes to the API querying and obtain the corresponding data.
-- Display the returned data- Subset the data set, you can select 
-- Allow you to save the data as .csv filerows and columns
+- You can a) specify the date and original report receive date/on-set date to query the Animal Adverse Effect API and obtain the corresponding data. b) specify the date range to query the Food Enforcement data. c) Both can change the observation numbers from 1 to 1000 due to the limit of each query.
+
+- Display the returned data
+
+- Subset the data set, you can select rows and variables(columns)
+
+- You can download and save the data as .csv file
 
 3. Exploration. 
 
@@ -23,7 +27,7 @@ Based on your query,
 
 The packages you will need given in the below code:
 
-install.packages(c("shiny", "tidyverse", "ggplot2", "jsonlite", "httr", "ggcharts", "shinybusy", "shinycssloaders", "DT"))
+install.packages(c("shiny", "tidyverse", "ggplot2", "jsonlite", "httr", "ggcharts", "DT"))
 
 You can use the code below that copy and paste into RStudio to run this app.
 

@@ -1,12 +1,7 @@
 #
-# Project 2 -st558
-#
-
-# server
-
-library(shiny)
-library(DT)
-library(ggcharts)
+# St558 - Project 2
+# Create a shiny app to query an API and summarize the data
+# Jie Chen
 
 # Define the server logic
 function(input, output, session) {
@@ -254,7 +249,7 @@ function(input, output, session) {
     data <- cleaned_food_data()
     top_n <- input$top_n
     
-    # Summarize data by state and classification
+  # Summarize data by state and classification
     state_summary <- data %>%
       group_by(state, classification) %>%
       summarize(count = n(), .groups = "drop") %>%
@@ -263,7 +258,7 @@ function(input, output, session) {
       top_n(10, count) %>%
       ungroup()
     
-    # Filter for top n states by total number of reports
+  # Filter for top n states by total number of reports
     top_states <- state_summary %>%
       group_by(state) %>%
       summarize(total_count = sum(count), .groups = "drop") %>%

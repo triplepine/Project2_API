@@ -1,13 +1,9 @@
-# 
 #
 # St558 - Project 2
 # Create a shiny app to query an API and summarize the data
 # Jie Chen
 # 07-04-2024
-
-library(shiny)
-library(DT)
-
+#
 
 # Define UI for application which contains 3 tabs
 
@@ -32,16 +28,16 @@ navbarPage("FDA Animal & Food Aderve Effect",
                         
                         mainPanel(
                           h3("Purpose of the App"),
-                          p("This app provides access to the FDA Animal & Veterinary API and Food API data, allowing users to search for Animal Adverse Events and Food Enforcement along with the numerical and graphical summaries."),
+                          p("This app provides access to the FDA Animal & Veterinary API and Food API data, allowing users to search for Animal Adverse Events and Food Enforcement data along with the numerical and graphical summaries."),
                           br(),
                           h3("Tab Descriptions"),
                           h4("1. ", strong("About:")) ,
                           p(" Provides information about the app, the data source, and the purpose of each tab."),
                           h4("2. ", strong("Download:")), 
-                          p("- You can specify changes to the API querying and obtain the corresponding data."),
+                          p("- You can a) specify the date and original report receive date/on-set date to query the Animal Adverse Effect API and obtain the corresponding data.  b) specify the date range to query the Food Enforcement data.  c) Both can change the observation numbers from 1 to 1000 due to the limit of each query."),
                           p("- Display the returned data"),
-                          p("- Subset the data set, you can select rows and columns"),
-                          p("- Allow you to save the data as .csv file"),
+                          p("- Subset the data set, you can select rows and variables(columns)"),
+                          p("- You can download and save the data as .csv file"),
                           h4("3. ", strong("Exploration:")),
                           p("-This tab allow you to choose variables that are summarized via numerical and graphical summaries"),
                           p("- You can change the type of plot shown and the type of summary reported"),
@@ -106,7 +102,7 @@ navbarPage("FDA Animal & Food Aderve Effect",
                                             selected = "species"),
                                br(),
                                h5(strong("Basic Summaries"),
-                               p("mean/median/min/max by animal.species")), 
+                               p("mean /median /min /max group by animal.species")), 
                                selectInput("var", label = "Variables to Summarize",
                                            choices = c("Age", "Weight"),
                                            selected = "Age")
@@ -114,7 +110,7 @@ navbarPage("FDA Animal & Food Aderve Effect",
                              
                              wellPanel(
                                h3("Food Reinforcement"),
-                               
+                               br(),
                                h4("Contingency Table"),
                                radioButtons("table_choice", "Select Contingency Table:",
                                             choices = list("Seriousness by Voluntary/Mandated" = "voluntary_mandated",

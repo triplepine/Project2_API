@@ -1,3 +1,8 @@
+#
+# St558 - Project 2
+# Create a shiny app to query an API and summarize the data
+# Jie Chen
+
 # Load necessary libraries
 library(shiny)
 library(httr)
