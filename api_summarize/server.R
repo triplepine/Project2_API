@@ -12,16 +12,18 @@ function(input, output, session) {
   selected_columns_animal <- reactiveVal(NULL)
   selected_columns_food <- reactiveVal(NULL)
   
+  # for animal data submit
   observeEvent(input$submit_animal, {
     req(input$search_animal, input$date_animal, input$limit_animal)
     
     data <- get_animal_adr(input$search_animal, input$date_animal, input$limit_animal)
-    data <- flatten_list_columns(data)
+    data <- flatten_list_columns(data)  # some variables nested with lists
     animal_data(data)
     selected_columns_animal(names(data)) # Initialize with all columns selected
     
   })
   
+  # for food data submit
   observeEvent(input$submit_food, {
     req(input$date_range_food, input$limit_food)
     
@@ -51,7 +53,7 @@ function(input, output, session) {
     }
     datatable(data, options = list(pageLength = input$rows_to_display_food,searching=FALSE))
   })
-  
+  # allow subset the columns
   output$column_selector_animal <- renderUI({
     req(animal_data())
     data <- animal_data()
@@ -71,7 +73,7 @@ function(input, output, session) {
   observeEvent(input$columns_food, {
     selected_columns_food(input$columns_food)
   })
-  
+  # allow subset the rows
   observeEvent(animal_data(), {
     updateNumericInput(session, "rows_to_display_animal", max = nrow(animal_data()))
   })
@@ -79,7 +81,7 @@ function(input, output, session) {
   observeEvent(food_data(), {
     updateNumericInput(session, "rows_to_display_food", max = nrow(food_data()))
   })
-  
+  # allow user to download and save the data as csv file
   output$download_data_animal <- downloadHandler(
     filename = function() {
       paste("animal_data.csv")
@@ -94,7 +96,7 @@ function(input, output, session) {
       write.csv(data, file, row.names = FALSE)
     }
   )
-  
+  # allow user to download and save the data as csv file
   output$download_data_food <- downloadHandler(
     filename = function() {
       paste("food_data.csv")
