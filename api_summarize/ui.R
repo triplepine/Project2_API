@@ -53,6 +53,7 @@ navbarPage("FDA Animal & Food Aderve Effect",
            tabPanel("Download",
                     fluidPage(
                       titlePanel("Adverse Events"),
+                      add_busy_spinner(spin = "fading-circle"),  # Add the busy spinner
                       sidebarLayout(
                         sidebarPanel(
                           h3("Animal Data Query"),
@@ -61,6 +62,15 @@ navbarPage("FDA Animal & Food Aderve Effect",
                           textInput("date_animal", "Date (yyyymmdd):", value = "20230601"),
                           numericInput("limit_animal", "Limit:", value = 1000, min = 1, max = 1000),
                           actionButton("submit_animal", "Submit Animal Query"),
+                          br(),
+                          br(),
+                          h4("Search by Animal Species"),
+                          textInput("species", "Enter Animal Species 
+                                    (Cat,Dog,Cattle,Goat,Horse):"),
+                          textInput("date", "Enter Date (YYYYMMDD):"),
+                          
+                          actionButton("query_species", "Query Species"),
+                          br(),
                           br(),
                           h3("Food Data Query"),
                           textInput("date_range_food", "Date Range (yyyymmdd+TO+yyyymmdd):", value = "20240101+TO+20240531"),
@@ -75,6 +85,9 @@ navbarPage("FDA Animal & Food Aderve Effect",
                                      numericInput("rows_to_display_animal", "Number of rows to display", value = 10, min = 1),
                                      downloadButton("download_data_animal", "Download Animal Data")
                             ),
+                            tabPanel("Query by Animal Species",
+                                     DTOutput("data_table"),
+                                     downloadButton("download_data", "Download Animal Species Data")),
                             tabPanel("Food Data", 
                                      DTOutput("results_food"),
                                      uiOutput("column_selector_food"),

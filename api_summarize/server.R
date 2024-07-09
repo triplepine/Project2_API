@@ -112,6 +112,38 @@ function(input, output, session) {
     }
   )
 
+  # allow user to query by animal species and date 
+  # (if invalid input, will set default values)
+  # reactive value to store the species data
+  species_data <- reactiveVal(NULL)
+  
+  observeEvent(input$query_species, {
+    req(input$species, input$date)
+    show_modal_spinner(spin = "circle", text = "Querying data...")  # Show the status bar
+    # Directly call the animal_species function
+    data <- animal_species(input$species, input$date)
+    species_data(data)
+    remove_modal_spinner()  # Remove the status bar
+  })
+  
+  # Display the data
+  output$data_table <- renderDT({
+    req(species_data())
+    datatable(species_data(), options = list(pageLength = 10,searching=FALSE))
+  })
+  
+  # Allow user to download the data
+  output$download_data <- downloadHandler(
+    filename = function() {
+      paste("species_data.csv", sep = "")
+    },
+    content = function(file) {
+      req(species_data())
+      write.csv(species_data(), file, row.names = FALSE)
+    }
+  )
+  
+  
   # The Exploration tab
   
   # animal_data with plots by species (based on age/weight)

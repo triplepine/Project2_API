@@ -11,7 +11,7 @@ There is a limit of 1000 observations you can query at once
 
 2. Download.
 
-- You can a) specify the date and original report receive date/on-set date to query the Animal Adverse Effect API and obtain the corresponding data. b) specify the date range to query the Food Enforcement data. c) Both can change the observation numbers from 1 to 1000 due to the limit of each query.
+- You can a) specify the date and original report receive date/on-set date to query the Animal Adverse Effect API and obtain the corresponding data. b) specify the date range to query the Food Enforcement data. c) Both can change the observation numbers from 1 to 1000 due to the limit of each query. d) you can also query by animal species and the date to obtain animal adverse events data
 
 - Display the returned data
 
@@ -25,9 +25,10 @@ Based on your query,
 - This tab allow you to choose variables that are summarized via numerical and graphical summaries
 - You can change the type of plot shown and the type of summary reported
 
-The packages you will need given in the below code:
 
-install.packages(c("shiny", "tidyverse", "ggplot2", "jsonlite", "httr", "ggcharts", "DT"))
+Install required packages if not already installed:
+
+install.packages(c("shiny", "httr", "tidyverse", "jsonlite", "DT", "ggplot2", "ggcharts", "shinybusy", "tools"))
 
 You can use the code below that copy and paste into RStudio to run this app.
 
